@@ -17,7 +17,7 @@ import java.util.Set;
  * Created by nmccarty on 1/27/17.
  */
 public class DockerContainer {
-    private static DockerClient docker = new DefaultDockerClient("unix:///var/run/docker.sock");
+    protected static DockerClient docker = new DefaultDockerClient("unix:///var/run/docker.sock");
 
     private String containerID;
 

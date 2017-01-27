@@ -1,11 +1,16 @@
 package edu.uky.rc;
 
-import javax.print.Doc;
+import java.util.List;
 
 public class Main {
 
     public static void main(String[] args) {
         DockerContainer wiki = new DockerContainer("f31eecda1905");
-        wiki.getVolumes();
+        List<DockerVolume> volumes = wiki.getVolumes();
+        for (DockerVolume v : volumes){
+            System.out.println(v.getInternalPath());
+            System.out.print(v.getExternalPath());
+            System.out.println("\n");
+        }
     }
 }

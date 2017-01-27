@@ -1,17 +1,13 @@
 package edu.uky.rc;
 
-import com.google.common.collect.ImmutableMap;
-import com.google.common.collect.ImmutableSet;
+import com.google.common.collect.ImmutableList;
 import com.spotify.docker.client.*;
 import com.spotify.docker.client.exceptions.DockerException;
 import com.spotify.docker.client.messages.Container;
-import com.spotify.docker.client.messages.Volume;
+import com.spotify.docker.client.messages.ContainerMount;
 
-import java.lang.reflect.Array;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Map;
-import java.util.Set;
 
 /**
  * Created by nmccarty on 1/27/17.
@@ -40,10 +36,9 @@ public class DockerContainer {
     public List<DockerVolume> getVolumes(){
         try {
             ArrayList<DockerVolume> dockerVolumes = new ArrayList<>();
-            ImmutableMap<String, java.util.Map> volumeMap = docker.inspectContainer(containerID).config().volumes();
-            ImmutableSet<String> volumes = volumeMap.keySet();
-            for(String vol:volumes){
-                dockerVolumes.add(new DockerVolume(this, vol));
+            ImmutableList<ContainerMount> containerMounts = docker.inspectContainer(containerID).mounts();
+            for(ContainerMount vol : containerMounts){
+                dockerVolumes.add(new DockerVolume(this, vol.destination()));
             }
             return dockerVolumes;
         } catch (DockerException|InterruptedException  e) {

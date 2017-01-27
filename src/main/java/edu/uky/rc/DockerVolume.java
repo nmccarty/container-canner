@@ -7,9 +7,9 @@ public class DockerVolume {
     private DockerContainer container;
     private String internalPath;
 
-    public DockerVolume(DockerContainer c, String ip){
-        container = c;
-        internalPath = ip;
+    public DockerVolume(DockerContainer container, String internalPath){
+        this.container = container;
+        this.internalPath = internalPath;
     }
 
     public DockerContainer getContainer() {

@@ -29,7 +29,8 @@ public class DockerVolume {
 
     public String getExternalPath(){
         try {
-            ImmutableList<ContainerMount> containerMounts = DockerContainer.docker.inspectContainer(container.getContainerID()).mounts();
+            ImmutableList<ContainerMount> containerMounts =
+                    DockerContainer.docker.inspectContainer(container.getContainerID()).mounts();
             for(ContainerMount mount : containerMounts){
                 String dest = mount.destination();
                 if(dest.equals(internalPath)){

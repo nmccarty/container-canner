@@ -4,6 +4,9 @@ import com.google.common.collect.ImmutableList;
 import com.spotify.docker.client.exceptions.DockerException;
 import com.spotify.docker.client.messages.ContainerMount;
 
+import java.io.File;
+import java.io.UncheckedIOException;
+
 /**
  * Created by nmccarty on 1/27/17.
  */
@@ -38,6 +41,14 @@ public class DockerVolume {
             e.printStackTrace();
             return null;
         }
+    }
+
+    public File saveVolume(){
+        throw new UnsupportedOperationException();
+    }
+
+    public void loadVolume(File archive){
+        throw new UnsupportedOperationException();
     }
 
 

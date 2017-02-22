@@ -6,8 +6,11 @@ import com.spotify.docker.client.exceptions.DockerException;
 import com.spotify.docker.client.messages.Container;
 import com.spotify.docker.client.messages.ContainerMount;
 
+import java.io.File;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 /**
  * Created by nmccarty on 1/27/17.
@@ -45,6 +48,17 @@ public class DockerContainer {
             e.printStackTrace();
             return new ArrayList<>();
         }
+    }
+
+    public Map<String, File> saveVolumes(){
+        HashMap<String, File> vols = new HashMap<>();
+        List<DockerVolume> volumes = getVolumes();
+        for(DockerVolume v : volumes){
+            File output = v.saveVolume();
+            vols.put(v.getInternalPath(),output);
+        }
+
+        return vols;
     }
 
     public static List<DockerContainer> listContainers(){

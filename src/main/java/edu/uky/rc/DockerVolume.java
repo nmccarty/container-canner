@@ -5,6 +5,7 @@ import com.spotify.docker.client.exceptions.DockerException;
 import com.spotify.docker.client.messages.ContainerMount;
 
 import java.io.File;
+import java.io.IOException;
 import java.io.UncheckedIOException;
 
 /**
@@ -45,6 +46,20 @@ public class DockerVolume {
     }
 
     public File saveVolume(){
+        // Create a temporary file to store the TARchive in
+        try {
+            File temp = File.createTempFile("docker-volume"+internalPath, ".tar");
+            // TODO: Use jTar to remove platform dependencies
+            String command = "tar -cf " + temp.getAbsolutePath() + " -C " + getExternalPath() + " .";
+
+            Process p = Runtime.getRuntime().exec(command);
+            p.waitFor();
+        } catch (IOException|InterruptedException e) {
+            // TODO: Error recovery?
+            e.printStackTrace();
+            return null;
+        }
+
         throw new UnsupportedOperationException();
     }
 

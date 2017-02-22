@@ -54,13 +54,13 @@ public class DockerVolume {
 
             Process p = Runtime.getRuntime().exec(command);
             p.waitFor();
+
+            return temp;
         } catch (IOException|InterruptedException e) {
             // TODO: Error recovery?
             e.printStackTrace();
             return null;
         }
-
-        throw new UnsupportedOperationException();
     }
 
     public void loadVolume(File archive){

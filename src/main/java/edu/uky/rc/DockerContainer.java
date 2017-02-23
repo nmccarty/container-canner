@@ -37,6 +37,28 @@ public class DockerContainer {
         }
     }
 
+    public boolean start(){
+        try {
+            docker.startContainer(containerID);
+        } catch (DockerException|InterruptedException e) {
+            e.printStackTrace();
+            return false;
+        }
+
+        return true;
+    }
+
+    public boolean stop(){
+        try {
+            docker.killContainer(containerID);
+        } catch (DockerException|InterruptedException e) {
+            e.printStackTrace();
+            return false;
+        }
+
+        return true;
+    }
+
     public List<DockerVolume> getVolumes(){
         try {
             ArrayList<DockerVolume> dockerVolumes = new ArrayList<>();

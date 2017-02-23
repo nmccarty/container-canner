@@ -61,6 +61,18 @@ public class DockerContainer {
         return vols;
     }
 
+    public boolean loadVolumes(Map<String,File> vols){
+        // TODO: Check and make sure all volumes in map exist in Container
+        List<DockerVolume> volumes = getVolumes();
+        boolean status = true;
+
+        for(DockerVolume v: volumes){
+            status = status && v.loadVolume(vols.get(v.getInternalPath()));
+        }
+
+        return status;
+    }
+
     public static List<DockerContainer> listContainers(){
         List<Container> containers;
         try{

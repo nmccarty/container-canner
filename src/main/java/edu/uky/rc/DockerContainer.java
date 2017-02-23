@@ -27,6 +27,7 @@ public class DockerContainer {
     public String getContainerID() {
         return containerID;
     }
+
     public boolean running(){
         try {
             return docker.inspectContainer(containerID).state().running();

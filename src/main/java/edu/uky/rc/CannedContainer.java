@@ -89,7 +89,9 @@ public class CannedContainer {
                 output.append(line + "\n");
             }
 
-            logger.info(output.toString());
+            if(output.toString().length() !=0) {
+                logger.info(output.toString());
+            }
 
         } catch (InterruptedException e){
             logger.error("Error making final tarball",e);

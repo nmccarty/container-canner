@@ -66,8 +66,9 @@ public class DockerVolume {
                 output.append(line + "\n");
             }
 
-            logger.info(output.toString());
-
+            if(output.toString().length() !=0) {
+                logger.info(output.toString());
+            }
 
             return temp;
         } catch (IOException|InterruptedException e) {
@@ -98,7 +99,9 @@ public class DockerVolume {
             while((line = reader.readLine()) != null){
                 output.append(line + "\n");
             }
-            logger.info(output.toString());
+            logger.info(output.toString());if(output.toString().length() !=0) {
+                logger.info(output.toString());
+            }
 
             // TODO: Use jTar instead of tar command
             // Load contents of archive back into Volume
@@ -111,7 +114,10 @@ public class DockerVolume {
             while((line = reader.readLine()) != null){
                 output.append(line + "\n");
             }
-            logger.info(output.toString());
+
+            logger.info(output.toString());if(output.toString().length() !=0) {
+                logger.info(output.toString());
+            }
 
             return true;
         } catch (IOException|InterruptedException e){

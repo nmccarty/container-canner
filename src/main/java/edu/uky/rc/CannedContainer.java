@@ -106,8 +106,17 @@ public class CannedContainer {
             throw new RuntimeException(e);
         }
 
+        // Cleanup tempfiles that are no longer needed
+        // Good thing we contained them all in one easy to manage folder
+        for(File f : tmpDir.toFile().listFiles()){
+            logger.debug("Removing tmpfile: "+f.getAbsolutePath());
+            f.delete();
+        }
+        logger.debug("Removing tmpDir: "+tmpDir.toFile().getAbsolutePath());
+        tmpDir.toFile().delete();
 
-        // TODO: Cleanup uneeded tempfiles
+        // TODO: Compress directory
+
         return tarchive;
     }
 

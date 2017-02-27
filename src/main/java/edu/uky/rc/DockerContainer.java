@@ -59,6 +59,11 @@ public class DockerContainer {
         return true;
     }
 
+    public File checkpoint(){
+
+        throw new UnsupportedOperationException();
+    }
+
     public List<DockerVolume> getVolumes(){
         try {
             ArrayList<DockerVolume> dockerVolumes = new ArrayList<>();

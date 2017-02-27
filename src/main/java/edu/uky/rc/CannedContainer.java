@@ -33,12 +33,19 @@ public class CannedContainer {
     public File can() throws IOException {
         // Get a logger
         Logger logger = LoggerFactory.getLogger(CannedContainer.class);
+
+        // Create a temporary scratch directory
+        Path tmpDir = Files.createTempDirectory("containercanner"+container.getContainerID());
+        logger.info("Created temp dir at: " + tmpDir.toFile().getAbsolutePath());
+
+
         // First, stop the container
         // TODO: Check to see if the container is running
         // TODO: Snapshot and stop instead of just stop
         if(container.running()){
             logger.info("Stopping container " + container.getContainerID());
             container.stop();
+            // TODO: Memory snapshot
         } else {
             logger.info("Container already stopped.");
         }
@@ -46,10 +53,6 @@ public class CannedContainer {
 
         // Save the state of the volumes
         Map<String,File> vols = container.saveVolumes();
-
-        // Create a temporary scratch directory
-        Path tmpDir = Files.createTempDirectory("containercanner"+container.getContainerID());
-        logger.info("Created temp dir at: " + tmpDir.toFile().getAbsolutePath());
 
         // Move pickled volumes and add them to volume map
         int volID = 0;

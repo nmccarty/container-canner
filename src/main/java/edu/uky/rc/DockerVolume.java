@@ -99,7 +99,7 @@ public class DockerVolume {
             while((line = reader.readLine()) != null){
                 output.append(line + "\n");
             }
-            logger.info(output.toString());if(output.toString().length() !=0) {
+            if(output.toString().length() !=0) {
                 logger.info(output.toString());
             }
 

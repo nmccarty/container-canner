@@ -34,6 +34,7 @@ public class CannedContainer {
         // Get a logger
         Logger logger = LoggerFactory.getLogger(CannedContainer.class);
         // First, stop the container
+        // TODO: Check to see if the container is running
         // TODO: Snapshot and stop instead of just stop
         logger.info("Stopping container " + container.getContainerID());
         container.stop();
@@ -51,10 +52,9 @@ public class CannedContainer {
             volumeMap.put(s,volID+".tar");
             File f = vols.get(s);
             File newFile = new File(tmpDir.toFile().getAbsolutePath(), volID+".tar");
-            // Delete the created file so we can move on top of it
-            newFile.delete();
             Files.move(f.toPath(),newFile.toPath());
             logger.info("Moved " + f.toPath() + " to " + newFile.toPath());
+            volID+=1;
         }
 
         // Build the volume map file up
@@ -102,6 +102,7 @@ public class CannedContainer {
         }
 
 
+        // TODO: Cleanup uneeded tempfiles
         return tarchive;
     }
 

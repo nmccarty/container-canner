@@ -123,6 +123,29 @@ public class DockerContainer {
             throw new RuntimeException(e);
         }
 
+        // Clean it up
+        try{
+            String command = "rm -rf " + tmpDir.toFile().getAbsolutePath();
+            logger.info(command);
+
+            Process p = Runtime.getRuntime().exec(command);
+            p.waitFor();
+            BufferedReader reader =
+                    new BufferedReader(new InputStreamReader(p.getErrorStream()));
+            StringBuffer output = new StringBuffer();
+            String line;
+            while((line = reader.readLine())!=null){
+                output.append(line + "\n");
+            }
+            if(output.toString().length() != 0){
+                logger.info(output.toString());
+            }
+
+        } catch (InterruptedException e){
+            logger.error("Failed to checkpoint container",e);
+            throw new RuntimeException(e);
+        }
+
         return temp;
     }
 

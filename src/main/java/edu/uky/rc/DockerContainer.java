@@ -5,8 +5,15 @@ import com.spotify.docker.client.*;
 import com.spotify.docker.client.exceptions.DockerException;
 import com.spotify.docker.client.messages.Container;
 import com.spotify.docker.client.messages.ContainerMount;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
+import java.io.BufferedReader;
 import java.io.File;
+import java.io.IOException;
+import java.io.InputStreamReader;
+import java.nio.file.Files;
+import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -59,9 +66,64 @@ public class DockerContainer {
         return true;
     }
 
-    public File checkpoint(){
+    public File checkpoint() throws IOException {
+        Logger logger = LoggerFactory.getLogger(DockerContainer.class);
 
-        throw new UnsupportedOperationException();
+        Path tmpDir = Files.createTempDirectory("snapshot"+getContainerID());
+        logger.info("Created tmpDir: "+tmpDir.toFile().getAbsolutePath());
+
+        // Do the snapshot
+        // TODO: Make sure this did what it was supposed to, so we don't hand other people junk
+        try{
+            String command = "docker checkpoint create --checkpoint-dir "
+                    + tmpDir.toFile().getAbsolutePath() + " --leave-running=false " +
+                    getContainerID() + " checkpoint";
+            logger.info(command);
+
+            Process p = Runtime.getRuntime().exec(command);
+            p.waitFor();
+            BufferedReader reader =
+                    new BufferedReader(new InputStreamReader(p.getErrorStream()));
+            StringBuffer output = new StringBuffer();
+            String line;
+            while((line = reader.readLine())!=null){
+                output.append(line + "\n");
+            }
+            if(output.toString().length() != 0){
+                logger.info(output.toString());
+            }
+
+        } catch (InterruptedException e){
+            logger.error("Failed to checkpoint container",e);
+            throw new RuntimeException(e);
+        }
+
+        // Tar it up
+        File temp = File.createTempFile("docker-checkpoint"+getContainerID(),".tar");
+        try{
+            String command = "tar -cf " + temp.getAbsolutePath() +
+                    " -C " + tmpDir.toFile().getAbsolutePath() + " .";
+            logger.info(command);
+
+            Process p = Runtime.getRuntime().exec(command);
+            p.waitFor();
+            BufferedReader reader =
+                    new BufferedReader(new InputStreamReader(p.getErrorStream()));
+            StringBuffer output = new StringBuffer();
+            String line;
+            while((line = reader.readLine())!=null){
+                output.append(line + "\n");
+            }
+            if(output.toString().length() != 0){
+                logger.info(output.toString());
+            }
+
+        } catch (InterruptedException e){
+            logger.error("Failed to tar checkpoint",e);
+            throw new RuntimeException(e);
+        }
+
+        return temp;
     }
 
     public List<DockerVolume> getVolumes(){

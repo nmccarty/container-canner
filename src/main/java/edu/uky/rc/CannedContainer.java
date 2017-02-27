@@ -51,6 +51,8 @@ public class CannedContainer {
             volumeMap.put(s,volID+".tar");
             File f = vols.get(s);
             File newFile = new File(tmpDir.toFile().getAbsolutePath(), volID+".tar");
+            // Delete the created file so we can move on top of it
+            newFile.delete();
             Files.move(f.toPath(),newFile.toPath());
             logger.info("Moved " + f.toPath() + " to " + newFile.toPath());
         }

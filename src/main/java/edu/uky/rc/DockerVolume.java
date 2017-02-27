@@ -7,6 +7,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.io.*;
+import java.nio.Buffer;
 
 /**
  * Created by nmccarty on 1/27/17.
@@ -49,9 +50,6 @@ public class DockerVolume {
         // Create a temporary file to store the TARchive in
         Logger logger = LoggerFactory.getLogger(DockerVolume.class);
         try {
-
-
-
             File temp = File.createTempFile("docker-volume"+internalPath, ".tar");
             // TODO: Use jTar to remove platform dependencies
             String command = "tar -cf " + temp.getAbsolutePath() + " -C " + getExternalPath() + " .";
@@ -80,8 +78,48 @@ public class DockerVolume {
         }
     }
 
-    public void loadVolume(File archive){
-        throw new UnsupportedOperationException();
+    public Boolean loadVolume(File archive){
+        // TODO Return failure if any of the commands run within fail
+        Logger logger = LoggerFactory.getLogger(DockerVolume.class);
+        try {
+            // TODO: Make it so this doesn't nuke the everything if the restore goes wrong
+            // Common variables
+            BufferedReader reader;
+            StringBuffer output;
+            String line;
+
+            // Remove current contents of volume first, to prevent a conflict
+            String command1 = "rm -rf " + getExternalPath() + "/*";
+            logger.info(command1);
+            Process p1 = Runtime.getRuntime().exec(command1);
+            p1.waitFor();
+            reader = new BufferedReader(new InputStreamReader(p1.getErrorStream()));
+            output = new StringBuffer();
+            while((line = reader.readLine()) != null){
+                output.append(line + "\n");
+            }
+            logger.info(output.toString());
+
+            // TODO: Use jTar instead of tar command
+            // Load contents of archive back into Volume
+            String command2 = "tar -xf " + archive.getAbsolutePath() + " -C " + getExternalPath();
+            logger.info(command2);
+            Process p2 = Runtime.getRuntime().exec(command2);
+            p2.waitFor();
+            reader = new BufferedReader(new InputStreamReader(p2.getErrorStream()));
+            output = new StringBuffer();
+            while((line = reader.readLine()) != null){
+                output.append(line + "\n");
+            }
+            logger.info(output.toString());
+
+            return true;
+        } catch (IOException|InterruptedException e){
+            // TODO: Error recovery?
+            logger.error("Restoring volume state failed, for whatever reason.",e);
+            return false;
+        }
+
     }
 
 

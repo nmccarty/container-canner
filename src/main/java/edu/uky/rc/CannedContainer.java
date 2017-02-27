@@ -36,8 +36,13 @@ public class CannedContainer {
         // First, stop the container
         // TODO: Check to see if the container is running
         // TODO: Snapshot and stop instead of just stop
-        logger.info("Stopping container " + container.getContainerID());
-        container.stop();
+        if(container.running()){
+            logger.info("Stopping container " + container.getContainerID());
+            container.stop();
+        } else {
+            logger.info("Container already stopped.");
+        }
+
 
         // Save the state of the volumes
         Map<String,File> vols = container.saveVolumes();

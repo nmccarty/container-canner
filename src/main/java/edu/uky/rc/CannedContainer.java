@@ -91,7 +91,7 @@ public class CannedContainer {
             p.waitFor();
             BufferedReader reader =
                     new BufferedReader(new InputStreamReader(p.getErrorStream()));
-            String line = "";
+            String line;
             while((line = reader.readLine()) != null){
                 output.append(line + "\n");
             }
@@ -115,9 +115,31 @@ public class CannedContainer {
         logger.debug("Removing tmpDir: "+tmpDir.toFile().getAbsolutePath());
         tmpDir.toFile().delete();
 
-        // TODO: Compress directory
+        try {
+            // TODO: Compression Configuration and smart use of threads
+            String command = "xz -1 " + tarchive.getAbsolutePath() + " --threads=4";
+            logger.info(command);
 
-        return tarchive;
+            StringBuffer output = new StringBuffer();
+
+            Process p = Runtime.getRuntime().exec(command);
+            p.waitFor();
+            BufferedReader reader =
+                    new BufferedReader(new InputStreamReader(p.getErrorStream()));
+            String line;
+            while((line = reader.readLine()) != null){
+                output.append(line + "\n");
+            }
+
+            if(output.toString().length() !=0) {
+                logger.info(output.toString());
+            }
+        } catch (InterruptedException e){
+            logger.error("Error compressing tar",e);
+            throw new RuntimeException(e);
+        }
+
+        return new File(tarchive.getAbsolutePath().concat(".xz"));
     }
 
 }

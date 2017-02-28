@@ -78,19 +78,10 @@ public class DockerContainer {
             String command = "docker checkpoint create --checkpoint-dir "
                     + tmpDir.toFile().getAbsolutePath() + " --leave-running=false " +
                     getContainerID() + " checkpoint";
-            logger.info(command);
+            boolean result = CanningUtils.runCommand(command,logger);
 
-            Process p = Runtime.getRuntime().exec(command);
-            p.waitFor();
-            BufferedReader reader =
-                    new BufferedReader(new InputStreamReader(p.getErrorStream()));
-            StringBuffer output = new StringBuffer();
-            String line;
-            while((line = reader.readLine())!=null){
-                output.append(line + "\n");
-            }
-            if(output.toString().length() != 0){
-                logger.info(output.toString());
+            if(!result){
+                return null;
             }
 
         } catch (InterruptedException e){
@@ -103,19 +94,10 @@ public class DockerContainer {
         try{
             String command = "tar -cf " + temp.getAbsolutePath() +
                     " -C " + tmpDir.toFile().getAbsolutePath() + " .";
-            logger.info(command);
+            boolean result = CanningUtils.runCommand(command,logger);
 
-            Process p = Runtime.getRuntime().exec(command);
-            p.waitFor();
-            BufferedReader reader =
-                    new BufferedReader(new InputStreamReader(p.getErrorStream()));
-            StringBuffer output = new StringBuffer();
-            String line;
-            while((line = reader.readLine())!=null){
-                output.append(line + "\n");
-            }
-            if(output.toString().length() != 0){
-                logger.info(output.toString());
+            if(!result){
+                return null;
             }
 
         } catch (InterruptedException e){
@@ -126,20 +108,7 @@ public class DockerContainer {
         // Clean it up
         try{
             String command = "rm -rf " + tmpDir.toFile().getAbsolutePath();
-            logger.info(command);
-
-            Process p = Runtime.getRuntime().exec(command);
-            p.waitFor();
-            BufferedReader reader =
-                    new BufferedReader(new InputStreamReader(p.getErrorStream()));
-            StringBuffer output = new StringBuffer();
-            String line;
-            while((line = reader.readLine())!=null){
-                output.append(line + "\n");
-            }
-            if(output.toString().length() != 0){
-                logger.info(output.toString());
-            }
+            CanningUtils.runCommand(command,logger);
 
         } catch (InterruptedException e){
             logger.error("Failed to checkpoint container",e);

@@ -86,22 +86,7 @@ public class CannedContainer {
         try {
             // TODO: Replace with jTar
             String command = "tar -cf " + tarchive.getAbsolutePath() + " -C " + tmpDir.toFile().getAbsolutePath() + " .";
-            logger.info(command);
-
-            StringBuffer output = new StringBuffer();
-
-            Process p = Runtime.getRuntime().exec(command);
-            p.waitFor();
-            BufferedReader reader =
-                    new BufferedReader(new InputStreamReader(p.getErrorStream()));
-            String line;
-            while((line = reader.readLine()) != null){
-                output.append(line + "\n");
-            }
-
-            if(output.toString().length() !=0) {
-                logger.info(output.toString());
-            }
+            CanningUtils.runCommand(command,logger);
 
         } catch (InterruptedException e){
             logger.error("Error making final tarball",e);
@@ -121,22 +106,8 @@ public class CannedContainer {
         try {
             // TODO: Compression Configuration and smart use of threads
             String command = "xz -1 " + tarchive.getAbsolutePath() + " --threads=4";
-            logger.info(command);
+            CanningUtils.runCommand(command,logger);
 
-            StringBuffer output = new StringBuffer();
-
-            Process p = Runtime.getRuntime().exec(command);
-            p.waitFor();
-            BufferedReader reader =
-                    new BufferedReader(new InputStreamReader(p.getErrorStream()));
-            String line;
-            while((line = reader.readLine()) != null){
-                output.append(line + "\n");
-            }
-
-            if(output.toString().length() !=0) {
-                logger.info(output.toString());
-            }
         } catch (InterruptedException e){
             logger.error("Error compressing tar",e);
             throw new RuntimeException(e);

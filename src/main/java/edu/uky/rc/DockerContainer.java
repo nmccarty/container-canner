@@ -8,10 +8,7 @@ import com.spotify.docker.client.messages.ContainerMount;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.io.BufferedReader;
-import java.io.File;
-import java.io.IOException;
-import java.io.InputStreamReader;
+import java.io.*;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.ArrayList;
@@ -72,6 +69,18 @@ public class DockerContainer {
         Path tmpDir = Files.createTempDirectory("snapshot"+getContainerID());
         logger.info("Created tmpDir: "+tmpDir.toFile().getAbsolutePath());
 
+        // Use ACLs to ensure that we have access to the snapshot
+        try{
+            boolean status;
+            String command1 = "setfacl -Rm g:docker:rwX " + tmpDir.toString();
+            status = CanningUtils.runCommand(command1,logger);
+            String command2 =  "setfacl -Rm default:g:docker:rwX " + tmpDir.toString();
+            status = status & CanningUtils.runCommand(command2,logger);
+        } catch (InterruptedException e){
+            logger.error("Failed to set ACLs, aborting",e);
+            return null;
+        }
+
         // Do the snapshot
         // TODO: Make sure this did what it was supposed to, so we don't hand other people junk
         try{
@@ -94,11 +103,11 @@ public class DockerContainer {
         try{
             String command = "tar -cf " + temp.getAbsolutePath() +
                     " -C " + tmpDir.toFile().getAbsolutePath() + " .";
-            boolean result = CanningUtils.runCommand(command,logger);
+            CanningUtils.runCommand(command,logger);
+            // Note: we intentionally ignore the exit value here
+            // CRIU does some magic that ignores default ACLs resulting in (unimportant) files we can't read
+            // If we aren't run as root
 
-            if(!result){
-                return null;
-            }
 
         } catch (InterruptedException e){
             logger.error("Failed to tar checkpoint",e);

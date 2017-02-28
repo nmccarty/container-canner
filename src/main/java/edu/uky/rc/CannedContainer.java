@@ -31,6 +31,7 @@ public class CannedContainer {
     }
 
     public File can() throws IOException {
+        // TODO: Export Container
         // Get a logger
         Logger logger = LoggerFactory.getLogger(CannedContainer.class);
 
@@ -38,14 +39,19 @@ public class CannedContainer {
         Path tmpDir = Files.createTempDirectory("containercanner"+container.getContainerID());
         logger.info("Created temp dir at: " + tmpDir.toFile().getAbsolutePath());
 
+        // Create the tarchive file
+        File tarchive = File.createTempFile("cannedContainer"+container.getContainerID(),".tar");
 
         // First, stop the container
         // TODO: Check to see if the container is running
         // TODO: Snapshot and stop instead of just stop
+        boolean checkpointCreated = false;
+        File checkpoint = null;
+
         if(container.running()){
             logger.info("Stopping container " + container.getContainerID());
-            container.stop();
-            // TODO: Memory snapshot
+            checkpointCreated = true;
+            checkpoint = container.checkpoint();
         } else {
             logger.info("Container already stopped.");
         }
@@ -63,6 +69,13 @@ public class CannedContainer {
             Files.move(f.toPath(),newFile.toPath());
             logger.info("Moved " + f.toPath() + " to " + newFile.toPath());
             volID+=1;
+        }
+        // If a checkpoint was created, move it
+        if(checkpointCreated){
+            File newFile = new File(tmpDir.toFile().getAbsolutePath(), "checkpoint.tar");
+            Files.move(checkpoint.toPath(),newFile.toPath());
+            logger.info("Moved " + checkpoint.toPath() + " to " + newFile.toPath());
+            checkpoint = newFile;
         }
 
         // Build the volume map file up
@@ -82,7 +95,6 @@ public class CannedContainer {
                 volMap.toString().getBytes(StandardCharsets.UTF_8), StandardOpenOption.CREATE);
 
         // Tar it all up
-        File tarchive = File.createTempFile("cannedContainer"+container.getContainerID(),".tar");
         try {
             // TODO: Replace with jTar
             String command = "tar -cf " + tarchive.getAbsolutePath() + " -C " + tmpDir.toFile().getAbsolutePath() + " .";

@@ -1,5 +1,6 @@
 package edu.uky.rc;
 
+import com.spotify.docker.client.exceptions.DockerException;
 import com.spotify.docker.client.messages.Container;
 import com.spotify.docker.client.messages.ContainerChange;
 import org.slf4j.Logger;
@@ -31,8 +32,7 @@ public class CannedContainer {
     }
 
     public File can() throws IOException {
-        // TODO: Export Container
-        // Get a logger
+                // Get a logger
         Logger logger = LoggerFactory.getLogger(CannedContainer.class);
 
         // Create a temporary scratch directory
@@ -56,6 +56,16 @@ public class CannedContainer {
             logger.info("Container already stopped.");
         }
 
+        // Export the container
+        File containerFile = File.createTempFile("exportedContainer-"+container.getContainerID(),".tar");
+        containerFile.delete();
+        try {
+            Files.copy(DockerContainer.docker.exportContainer(container.getContainerID()),containerFile.toPath());
+        } catch (DockerException|InterruptedException e){
+            logger.error("Exporting docker container Failed",e);
+            throw new RuntimeException(e);
+        }
+
 
         // Save the state of the volumes
         Map<String,File> vols = container.saveVolumes();
@@ -70,12 +80,15 @@ public class CannedContainer {
             logger.info("Moved " + f.toPath() + " to " + newFile.toPath());
             volID+=1;
         }
+        // Move the exported container
+        File newLocation = new File(tmpDir.toString(), "container.tar");
+        Files.move(containerFile.toPath(), newLocation.toPath());
+        logger.info("Moved " + containerFile.toPath() + " to " + newLocation.toPath());
         // If a checkpoint was created, move it
         if(checkpointCreated){
             File newFile = new File(tmpDir.toFile().getAbsolutePath(), "checkpoint.tar");
             Files.move(checkpoint.toPath(),newFile.toPath());
             logger.info("Moved " + checkpoint.toPath() + " to " + newFile.toPath());
-            checkpoint = newFile;
         }
 
         // Build the volume map file up

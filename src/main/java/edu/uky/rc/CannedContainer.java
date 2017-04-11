@@ -32,7 +32,7 @@ public class CannedContainer {
     }
 
     public File can() throws IOException {
-                // Get a logger
+        // Get a logger
         Logger logger = LoggerFactory.getLogger(CannedContainer.class);
 
         // Create a temporary scratch directory
@@ -68,19 +68,16 @@ public class CannedContainer {
         for(String s : vols.keySet()){
             volumeMap.put(s,volID+".tar");
             File f = vols.get(s);
-            File newFile = new File(tmpDir.toFile().getAbsolutePath(), volID+".tar");
-            Files.move(f.toPath(),newFile.toPath());
+            File newFile = moveFile(f, new File(tmpDir.toFile().getAbsolutePath(), volID+".tar"));
             logger.info("Moved " + f.toPath() + " to " + newFile.toPath());
             volID+=1;
         }
         // Move the exported container
-        File newLocation = new File(tmpDir.toString(), "container.tar");
-        Files.move(containerFile.toPath(), newLocation.toPath());
+        File newLocation = moveFile(containerFile, new File(tmpDir.toString(), "container.tar"));
         logger.info("Moved " + containerFile.toPath() + " to " + newLocation.toPath());
         // If a checkpoint was created, move it
         if(checkpointCreated){
-            File newFile = new File(tmpDir.toFile().getAbsolutePath(), "checkpoint.tar");
-            Files.move(checkpoint.toPath(),newFile.toPath());
+            File newFile = moveFile(checkpoint, new File(tmpDir.toFile().getAbsolutePath(), "checkpoint.tar"));
             logger.info("Moved " + checkpoint.toPath() + " to " + newFile.toPath());
         }
 
@@ -132,6 +129,11 @@ public class CannedContainer {
         }
 
         return new File(tarchive.getAbsolutePath().concat(".xz"));
+    }
+
+    private File moveFile(File from, File to) throws IOException {
+        Files.move(from.toPath(), to.toPath());
+        return to;
     }
 
 }

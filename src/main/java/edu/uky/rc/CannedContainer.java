@@ -68,16 +68,16 @@ public class CannedContainer {
         for(String s : vols.keySet()){
             volumeMap.put(s,volID+".tar");
             File f = vols.get(s);
-            File newFile = moveFile(f, new File(tmpDir.toFile().getAbsolutePath(), volID+".tar"));
+            File newFile = moveFile(f, fileInDir(tmpDir, volID+".tar"));
             logger.info("Moved " + f.toPath() + " to " + newFile.toPath());
             volID+=1;
         }
         // Move the exported container
-        File newLocation = moveFile(containerFile, new File(tmpDir.toString(), "container.tar"));
+        File newLocation = moveFile(containerFile, fileInDir(tmpDir,"container.tar"));
         logger.info("Moved " + containerFile.toPath() + " to " + newLocation.toPath());
         // If a checkpoint was created, move it
         if(checkpointCreated){
-            File newFile = moveFile(checkpoint, new File(tmpDir.toFile().getAbsolutePath(), "checkpoint.tar"));
+            File newFile = moveFile(checkpoint, fileInDir(tmpDir,"checkpoint.tar"));
             logger.info("Moved " + checkpoint.toPath() + " to " + newFile.toPath());
         }
 
@@ -93,7 +93,7 @@ public class CannedContainer {
         }
 
         // Write volume map
-        File volumeMapFile = new File(tmpDir.toFile().getAbsolutePath(),"volumeMap");
+        File volumeMapFile = fileInDir(tmpDir,"volumeMap");
         Files.write(volumeMapFile.toPath(),
                 volMap.toString().getBytes(StandardCharsets.UTF_8), StandardOpenOption.CREATE);
 
@@ -134,6 +134,10 @@ public class CannedContainer {
     private File moveFile(File from, File to) throws IOException {
         Files.move(from.toPath(), to.toPath());
         return to;
+    }
+
+    private File fileInDir(Path dir, String name){
+        return new File(dir.toFile().getAbsoluteFile(),name);
     }
 
 }

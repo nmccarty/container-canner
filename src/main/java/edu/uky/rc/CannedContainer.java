@@ -57,14 +57,7 @@ public class CannedContainer {
         }
 
         // Export the container
-        File containerFile = File.createTempFile("exportedContainer-"+container.getContainerID(),".tar");
-        containerFile.delete();
-        try {
-            Files.copy(DockerContainer.docker.exportContainer(container.getContainerID()),containerFile.toPath());
-        } catch (DockerException|InterruptedException e){
-            logger.error("Exporting docker container Failed",e);
-            throw new RuntimeException(e);
-        }
+        File containerFile = container.exportContainer();
 
 
         // Save the state of the volumes

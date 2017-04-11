@@ -199,4 +199,19 @@ public class DockerContainer {
 
         return dockerContainers;
     }
+
+    public File exportContainer() throws IOException {
+        Logger logger = LoggerFactory.getLogger(DockerContainer.class);
+        File containerFile = File.createTempFile("exportedContainer-"+getContainerID(),".tar");
+        containerFile.delete();
+        try {
+            Files.copy(DockerContainer.docker.exportContainer(getContainerID()),containerFile.toPath());
+        } catch (DockerException|InterruptedException e){
+            logger.error("Exporting docker container Failed",e);
+            throw new RuntimeException(e);
+        }
+
+        return containerFile;
+    }
+
 }
